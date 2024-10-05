@@ -73,7 +73,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	<body>
 	 <h1>Todo List</h1>
 	 <form action="/create" method="POST">
-	  <input type="text" name="title" placeholder="New Todo" required>
+	  <input type="text" name="DESCRIPTION" placeholder="New Todo" required>
+	  <input type="checkbox" id="IsCompleted" name="IsCompleted" value="1">
+	  <label for="IsCompleted"> Completed</label>
 	  <button type="submit">Add</button>
 	 </form>
 	 <ul>
@@ -88,6 +90,30 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, todos) // Render the template with the list of todos
 }
 
+// createHandler handles the creatopn of a new TODO
+func createHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		// To Extract Description from the form
+		DESCRIPTION := r.FormValue("DESCRIPTION")
+		//To Determine if Checkbox is Unchecked or Not
+		// 1 = Checked
+		// 0 = Unchecked
+		var IsCompleted int
+		if r.FormValue("IsCompleted") == "1" {
+			IsCompleted = 1
+		} else {
+			IsCompleted = 0
+		}
+		_, err := DB.Exec("INSERT INTO Todos(DESCRIPTION,IsCompleted) VALUES (?,?)", DESCRIPTION, IsCompleted)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+
+	}
+}
+
 // TODO: handler for GET Todo
 
 func main() {
@@ -96,6 +122,7 @@ func main() {
 
 	// Router the handlers for each URL path
 	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/create", createHandler)
 
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
