@@ -76,11 +76,11 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	  <input type="text" name="DESCRIPTION" placeholder="New Todo" required>
 	  <input type="checkbox" id="IsCompleted" name="IsCompleted" value="1">
 	  <label for="IsCompleted"> Completed</label>
-	  <button type="submit">Add</button>
+	  <button type="submit">ADD</button>
 	 </form>
 	 <ul>
 	  {{range .}}
-	  <li>{{.Description}} <a href="/delete?id={{.Id}}">Delete</a></li>
+	  <li>{{.Description}} <a href="/delete?ID={{.Id}}">Delete</a></li>
 	  {{end}}
 	 </ul>
 	</body>
@@ -114,6 +114,17 @@ func createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// DeleteHandler handles the Deletion Process
+func deleteHandler(w http.ResponseWriter, r *http.Request) {
+	ID := r.URL.Query().Get("ID")
+	_, err := DB.Exec("DELETE FROM Todos WHERE ID = ?", ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 // TODO: handler for GET Todo
 
 func main() {
@@ -123,6 +134,7 @@ func main() {
 	// Router the handlers for each URL path
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/create", createHandler)
+	http.HandleFunc("/delete", deleteHandler)
 
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
