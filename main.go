@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 
@@ -61,7 +62,30 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		todos = append(todos, todo)
 	}
 
-	return
+	// TODO: fix templating part
+	// Parse and execute the HTML template with the todos data
+	tmpl := template.Must(template.New("index").Parse(`
+	<!DOCTYPE html>
+	<html>
+	<head>
+	 <title>Todo List</title>
+	</head>
+	<body>
+	 <h1>Todo List</h1>
+	 <form action="/create" method="POST">
+	  <input type="text" name="title" placeholder="New Todo" required>
+	  <button type="submit">Add</button>
+	 </form>
+	 <ul>
+	  {{range .}}
+	  <li>{{.Description}} <a href="/delete?id={{.Id}}">Delete</a></li>
+	  {{end}}
+	 </ul>
+	</body>
+	</html>
+	`))
+
+	tmpl.Execute(w, todos) // Render the template with the list of todos
 }
 
 // TODO: handler for GET Todo
