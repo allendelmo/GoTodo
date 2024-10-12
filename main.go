@@ -74,13 +74,12 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	 <h1>Todo List</h1>
 	 <form action="/create" method="POST">
 	  <input type="text" name="DESCRIPTION" placeholder="New Todo" required>
-	  <input type="checkbox" id="IsCompleted" name="IsCompleted" value="1">
 	  <label for="IsCompleted"> Completed</label>
 	  <button type="submit">ADD</button>
-	 </form>
-	 <ul>
+	  </form>
+	  <ul>
 	  {{range .}}
-	  <li>{{.Description}} <a href="/delete?ID={{.Id}}">Delete</a></li>
+	  <li><input type="checkbox" id="IsCompleted" name="IsCompleted" value="1"> {{.Description}} <a href="/delete?ID={{.Id}}">Delete</a></li>
 	  {{end}}
 	 </ul>
 	</body>
