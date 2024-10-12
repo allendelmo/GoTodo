@@ -66,24 +66,144 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse and execute the HTML template with the todos data
 	tmpl := template.Must(template.New("index").Parse(`
 	<!DOCTYPE html>
-	<html>
-	<head>
-	 <title>Todo List</title>
-	</head>
-	<body>
-	 <h1>Todo List</h1>
-	 <form action="/create" method="POST">
-	  <input type="text" name="DESCRIPTION" placeholder="New Todo" required>
-	  <label for="IsCompleted"> Completed</label>
-	  <button type="submit">ADD</button>
-	  </form>
-	  <ul>
-	  {{range .}}
-	  <li><input type="checkbox" id="IsCompleted" name="IsCompleted" value="1"> {{.Description}} <a href="/delete?ID={{.Id}}">Delete</a></li>
-	  {{end}}
-	 </ul>
-	</body>
-	</html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Container */
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        /* Header */
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Form styling */
+        form {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Todo List Styling */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        li label {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+
+        /* Completed task style */
+        .completed {
+            
+            color: #888;
+        }
+
+        /* Delete link */
+        a {
+            color: #dc3545;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Checkbox Styling */
+        input[type="checkbox"] {
+            transform: scale(1.5);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Todo List</h1>
+
+        <form action="/create" method="POST">
+            <input type="text" name="DESCRIPTION" placeholder="New Todo" required>
+            <button type="submit">Add</button>
+        </form>
+
+        <ul>
+            {{range .}}
+            <li>
+                <input type="checkbox" id="isCompleted_{{.Id}}" name="isCompleted" {{if .IsCompleted}}checked{{end}}>
+                <label for="isCompleted_{{.Id}}" class="{{if .IsCompleted}}completed{{end}}">
+                    {{.Description}}
+                </label>
+                <a href="/delete?ID={{.Id}}" onclick="return confirm('Are you sure you want to delete this item?')">Delete</a>
+            </li>
+            {{end}}
+        </ul>
+    </div>
+
+</body>
+</html>
+
+
 	`))
 
 	tmpl.Execute(w, todos) // Render the template with the list of todos
@@ -124,6 +244,10 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func updateHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
 // TODO: handler for GET Todo
 
 func main() {
@@ -134,6 +258,7 @@ func main() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/create", createHandler)
 	http.HandleFunc("/delete", deleteHandler)
+	http.HandleFunc("/update", updateHandler)
 
 	fmt.Println("Server is running at http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
